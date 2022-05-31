@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+</head>
+
+<style>
+  :root {
+    --main-grid-max-size: 3040px;
+    --main-grid-min-size: 500px;
+    --main-grid-scale: 1;
+  }
+
+  body, html {
+    height: 100%;
+    margin: 0;
+
+    background-color: #000;
+  }
+
+  .test {
+    width: 500px;
+    height: 500px;
+
+    overflow: hidden;
+    position: relative;
+  }
+
+  .block-btn {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .points {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+  }
+
+  .zoom {
+    position: absolute;
+    right: 10px;
+    top: calc(50% - 70px);
+  }
+
+  .center {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+  }
+
+  .btn {
+    width: 40px;
+    height: 40px;
+
+    background-color: #bababa;
+    border: 0;
+    border-radius: 10px;
+    margin: 0 0 10px 0;
+
+    transition: 0.3s;
+
+    box-shadow: 0 0 12px 2px #bababa;
+  }
+
+  .btn:last-child {
+    margin: 0;
+  }
+
+  .btn:hover {
+    background-color: #868686;
+  }
+
+  .btn:active {
+    background-color: #666;
+    transform: scale(0.95);
+  }
+
+  .btn>p {
+    margin: 0;
+    font-size: 18px;
+    color: #fff;
+  }
+
+  #gridField {
+    width: var(--main-grid-max-size);
+    height: var(--main-grid-max-size);
+
+    background: 0 calc(var(--main-grid-max-size) / 2) url("data:image/svg+xml,%3Csvg width='40' height='1' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 40,0 L 0,0' fill='transparent' stroke='%23989898'/%3E%3C/svg%3E") repeat-x,
+    calc(var(--main-grid-max-size) / 2) 0 url("data:image/svg+xml,%3Csvg width='1' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 0,40 L 0,0' fill='transparent' stroke='%23989898'/%3E%3C/svg%3E") repeat-y,
+    url("data:image/svg+xml,%3Csvg version='1.1' baseProfile='full' width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 0,40 L 0,0 40,0' fill='transparent' stroke='%23e3e4e6'/%3E%3C/svg%3E"),
+    #f8faff;
+
+    position: absolute;
+    transform: scale(var(--main-grid-scale));
+    transform-origin: left top;
+  }
+</style>
+
+<body>
+<div class="test">
+  <div draggable="true" id="gridField"></div>
+  <div class="block-btn points">
+    <button onclick="" class="btn">
+      <p class="fa fa-map-marker"></p>
+    </button>
+    <button class="btn">
+      <p class="fa fa-times" style="vertical-align: 1px;"></p>
+    </button>
+  </div>
+  <div class="block-btn zoom">
+    <button onclick="zoomUp()" class="btn">
+      <p class="fa fa-plus"></p>
+    </button>
+    <button onclick="reloadZoom()" class="btn">
+      <p>1:1</p>
+    </button>
+    <button onclick="zoomDown()" class="btn">
+      <p class="fa fa-minus"></p>
+    </button>
+  </div>
+  <div class="block-btn center">
+    <button onclick="centred()" class="btn">
+      <p class="fa fa-crosshairs"></p>
+    </button>
+  </div>
+</div>
+</body>
+
+<script>
+  const maxScale = 3;
+  const maxSize = 3040;
+  const minSize = 500;
+
+  centred();
+
+  const tasksListElement = document.getElementById('gridField');
+  tasksListElement.onmousedown = function (event) {
+
+
+    let grid_elem = document.getElementById('gridField');
+    let pos_div = grid_elem.getBoundingClientRect();
+    const first_pos = {
+      x: event.clientX,
+      y: event.clientY
+    };
+
+    function onMouseMove (event_move) {
+      const deviation_value = {
+        width: event_move.clientX - first_pos.x,
+        height: event_move.clientY - first_pos.y
+      };
+      tasksListElement.style.cursor = 'grabbed';
+      grid_elem.style.left = pos_div.x + deviation_value.width + 'px';
+      grid_elem.style.top = pos_div.y + deviation_value.height + 'px';
+
+      fixedPosition();
+    }
+    document.addEventListener('mousemove', onMouseMove);
+    tasksListElement.onmouseout = function() {
+      document.removeEventListener('mousemove', onMouseMove);
+      tasksListElement.onmouseup = null;
+    };
+    tasksListElement.onmouseup = function() {
+      document.removeEventListener('mousemove', onMouseMove);
+      tasksListElement.onmouseup = null;
+    };
+  }
+  tasksListElement.ondragstart = function () {
+    return false;
+  }
+
+  function reloadZoom () {
+    centred();
+  }
+  function zoomUp () {
+    const oldValueScale = getComputedStyle(document.documentElement).getPropertyValue('--main-grid-scale');
+
+    if ((parseFloat(oldValueScale) + 0.1) > maxScale) return;
+
+    document.documentElement.style.setProperty('--main-grid-scale', '' + (parseFloat(oldValueScale) + 0.1));
+  }
+  function zoomDown () {
+    const oldValueScale = getComputedStyle(document.documentElement).getPropertyValue('--main-grid-scale');
+
+    if ((parseFloat(oldValueScale) - 0.1) * maxSize < minSize) return;
+
+    document.documentElement.style.setProperty('--main-grid-scale', '' + (parseFloat(oldValueScale) - 0.1));
+    fixedPosition();
+  }
+  function centred () {
+    const scale_value = getComputedStyle(document.documentElement).getPropertyValue('--main-grid-scale');
+    let grid_elem = document.getElementById('gridField');
+    grid_elem.style.left = -(maxSize * scale_value - minSize) / 2 + 'px';
+    grid_elem.style.top = -(maxSize * scale_value - minSize) / 2 + 'px';
+  }
+  function fixedPosition () {
+    let grid_elem = document.getElementById('gridField');
+    let pos_div = grid_elem.getBoundingClientRect();
+
+    if (pos_div.right < minSize)
+      grid_elem.style.left = pos_div.x + (minSize - pos_div.right) + 'px';
+    if (pos_div.bottom < minSize)
+      grid_elem.style.top = pos_div.y + (minSize - pos_div.bottom) + 'px';
+    if (pos_div.x > 0)
+      grid_elem.style.left = '0px';
+    if (pos_div.y > 0)
+      grid_elem.style.top = '0px';
+  }
+</script>
+</html>
+
+<!--window.scrollTo(maxSize *  / 2 - window.innerWidth / 2 + 30, maxSize / 2 - window.innerHeight / 2 + 30)-->
