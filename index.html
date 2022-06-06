@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Title</title>
 
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="fonts/fontAwesome/css/font-awesome.min.css">
 </head>
 
 <style>
@@ -89,8 +89,8 @@
     width: var(--main-grid-max-size);
     height: var(--main-grid-max-size);
 
-    background: 0 calc(var(--main-grid-max-size) / 2) url("data:image/svg+xml,%3Csvg width='40' height='1' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 40,0 L 0,0' fill='transparent' stroke='%23989898'/%3E%3C/svg%3E") repeat-x,
-    calc(var(--main-grid-max-size) / 2) 0 url("data:image/svg+xml,%3Csvg width='1' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 0,40 L 0,0' fill='transparent' stroke='%23989898'/%3E%3C/svg%3E") repeat-y,
+    background: 0 calc(var(--main-grid-max-size) / 2) url("data:image/svg+xml,%3Csvg width='40' height='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 40,0 L 0,0' fill='transparent' stroke='%23989898'/%3E%3C/svg%3E") repeat-x,
+    calc(var(--main-grid-max-size) / 2) 0 url("data:image/svg+xml,%3Csvg width='2' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 0,40 L 0,0' fill='transparent' stroke='%23989898'/%3E%3C/svg%3E") repeat-y,
     url("data:image/svg+xml,%3Csvg version='1.1' baseProfile='full' width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 0,40 L 0,0 40,0' fill='transparent' stroke='%23e3e4e6'/%3E%3C/svg%3E"),
     #f8faff;
 
@@ -104,7 +104,7 @@
 <div class="test">
   <div draggable="true" id="gridField"></div>
   <div class="block-btn points">
-    <button onclick="" class="btn">
+    <button onclick="test()" class="btn">
       <p class="fa fa-map-marker"></p>
     </button>
     <button class="btn">
@@ -131,31 +131,27 @@
 </body>
 
 <script>
+  let scaleValue = 1;
   const maxScale = 3;
   const maxSize = 3040;
   const minSize = 500;
 
   centred();
 
-  const tasksListElement = document.getElementById('gridField');
+  let tasksListElement = document.getElementById('gridField');
   tasksListElement.onmousedown = function (event) {
-
-
-    let grid_elem = document.getElementById('gridField');
-    let pos_div = grid_elem.getBoundingClientRect();
+    const pos_div = tasksListElement.getBoundingClientRect();
     const first_pos = {
       x: event.clientX,
       y: event.clientY
     };
-
     function onMouseMove (event_move) {
       const deviation_value = {
         width: event_move.clientX - first_pos.x,
         height: event_move.clientY - first_pos.y
       };
-      tasksListElement.style.cursor = 'grabbed';
-      grid_elem.style.left = pos_div.x + deviation_value.width + 'px';
-      grid_elem.style.top = pos_div.y + deviation_value.height + 'px';
+      tasksListElement.style.left = pos_div.x + deviation_value.width + 'px';
+      tasksListElement.style.top = pos_div.y + deviation_value.height + 'px';
 
       fixedPosition();
     }
@@ -173,29 +169,55 @@
     return false;
   }
 
+  function test () {
+    const data = document.getElementById('gridField');
+    const dataRect = data.getBoundingClientRect();
+
+    const test = dataRect.x * -1 + (dataRect.x + dataRect.right / 2);
+    console.log(dataRect, test);
+  }
+  function setScale (value = 1, editor = 0) {
+    scaleValue = value + editor
+    document.documentElement.style.setProperty('--main-grid-scale', '' + scaleValue);
+  }
+  function updateScale () {
+    scaleValue = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--main-grid-scale'));
+  }
   function reloadZoom () {
-    centred();
+    setScale ();
+    centred ();
   }
   function zoomUp () {
-    const oldValueScale = getComputedStyle(document.documentElement).getPropertyValue('--main-grid-scale');
+    updateScale ();
+    if (scaleValue + 0.1 > maxScale) return;
 
-    if ((parseFloat(oldValueScale) + 0.1) > maxScale) return;
+    const oldRect = tasksListElement.getBoundingClientRect();
 
-    document.documentElement.style.setProperty('--main-grid-scale', '' + (parseFloat(oldValueScale) + 0.1));
+    setScale(scaleValue, 0.1);
+
+    const newRect = tasksListElement.getBoundingClientRect();
+    tasksListElement.style.left = newRect.x - (newRect.width - oldRect.width) / 2 + 'px';
+    tasksListElement.style.top = newRect.y - (newRect.width - oldRect.width) / 2 + 'px';
   }
   function zoomDown () {
-    const oldValueScale = getComputedStyle(document.documentElement).getPropertyValue('--main-grid-scale');
+    updateScale ();
+    if ((scaleValue - 0.1) * maxSize < minSize) return;
 
-    if ((parseFloat(oldValueScale) - 0.1) * maxSize < minSize) return;
+    const oldRect = tasksListElement.getBoundingClientRect();
 
-    document.documentElement.style.setProperty('--main-grid-scale', '' + (parseFloat(oldValueScale) - 0.1));
+    setScale(scaleValue, -0.1);
+
+    const newRect = tasksListElement.getBoundingClientRect();
+    tasksListElement.style.left = newRect.x - (newRect.width - oldRect.width) / 2 + 'px';
+    tasksListElement.style.top = newRect.y - (newRect.width - oldRect.width) / 2 + 'px';
+
     fixedPosition();
   }
   function centred () {
-    const scale_value = getComputedStyle(document.documentElement).getPropertyValue('--main-grid-scale');
+    updateScale ()
     let grid_elem = document.getElementById('gridField');
-    grid_elem.style.left = -(maxSize * scale_value - minSize) / 2 + 'px';
-    grid_elem.style.top = -(maxSize * scale_value - minSize) / 2 + 'px';
+    grid_elem.style.left = -(maxSize * scaleValue - minSize) / 2 + 'px';
+    grid_elem.style.top = -(maxSize * scaleValue - minSize) / 2 + 'px';
   }
   function fixedPosition () {
     let grid_elem = document.getElementById('gridField');
@@ -212,5 +234,3 @@
   }
 </script>
 </html>
-
-<!--window.scrollTo(maxSize *  / 2 - window.innerWidth / 2 + 30, maxSize / 2 - window.innerHeight / 2 + 30)-->
