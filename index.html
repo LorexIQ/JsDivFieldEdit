@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="fonts/fontAwesome/css/font-awesome.min.css">
 </head>
 
-<style>
+<style lang="scss">
   :root {
     --main-grid-max-size: 3040px;
     --main-grid-min-size: 500px;
@@ -18,10 +18,10 @@
     height: 100%;
     margin: 0;
 
-    background-color: #000;
+    background-color: #ffffff;
   }
 
-  .test {
+  #field {
     width: 500px;
     height: 500px;
 
@@ -52,6 +52,45 @@
     bottom: 10px;
   }
 
+  .add-check {
+    z-index: 1001;
+  }
+  .custom-checkbox {
+    position: absolute;
+    z-index: -1;
+    opacity: 0;
+  }
+  .custom-checkbox+label {
+    display: inline-flex;
+    align-items: center;
+    user-select: none;
+  }
+  .custom-checkbox+label::before {
+    font-family: 'FontAwesome',serif;
+    content: '\f041';
+    color: #fff;
+    background-color: #bbb;
+    box-shadow: 0 0 12px 2px #bababa;
+
+    width: 40px;
+    height: 40px;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+    flex-grow: 0;
+    border: 0;
+    border-radius: 10px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    transition: 0.3s;
+  }
+  .custom-checkbox:checked+label::before {
+    background-color: #868686;
+    transform: scale(0.95);
+  }
+  
   .btn {
     width: 40px;
     height: 40px;
@@ -85,6 +124,18 @@
     color: #fff;
   }
 
+  #point-add {
+    position: absolute;
+    z-index: 1000;
+    visibility: hidden;
+    cursor: none;
+  }
+
+  #point-add>svg {
+    border-radius: 100%;
+    box-shadow: 0 0 10px 2px #bbb;
+  }
+
   #gridField {
     width: var(--main-grid-max-size);
     height: var(--main-grid-max-size);
@@ -101,12 +152,21 @@
 </style>
 
 <body>
-<div class="test">
-  <div draggable="true" id="gridField"></div>
+<div id="field">
+  <div id="point-add" onclick="addPointInField()">
+    <svg width="20" height="20"
+         xmlns="http://www.w3.org/2000/svg">
+      <circle cx="10" cy="10" r="10" fill="#868686" />
+    </svg>
+  </div>
+  <div draggable="true" id="gridField">
+    <svg xmlns="http://www.w3.org/2000/svg" id="content" />
+  </div>
   <div class="block-btn points">
-    <button onclick="test()" class="btn">
-      <p class="fa fa-map-marker"></p>
-    </button>
+    <div class="add-check">
+      <input type="checkbox" id="add" class="custom-checkbox" onclick="addPoint()">
+      <label for="add"></label>
+    </div>
     <button class="btn">
       <p class="fa fa-times" style="vertical-align: 1px;"></p>
     </button>
@@ -135,10 +195,17 @@
   const maxScale = 3;
   const maxSize = 3040;
   const minSize = 500;
+  let added = false;
+  let arrayPoints = []
 
   centred();
 
+  let content = document.getElementById('content');
+  content.style.width = maxSize + 'px';
+  content.style.height = maxSize + 'px';
+
   let tasksListElement = document.getElementById('gridField');
+  let pointer = document.getElementById('point-add');
   tasksListElement.onmousedown = function (event) {
     const pos_div = tasksListElement.getBoundingClientRect();
     const first_pos = {
@@ -168,13 +235,51 @@
   tasksListElement.ondragstart = function () {
     return false;
   }
+  tasksListElement.onmousemove = function (event) {
+    movePointer(event)
+  }
+  pointer.onmousemove = function (event) {
+    movePointer(event)
+  }
 
-  function test () {
-    const data = document.getElementById('gridField');
-    const dataRect = data.getBoundingClientRect();
+  function addPointInField () {
+    const rectPointer = pointer.getBoundingClientRect();
+    const rectField = tasksListElement.getBoundingClientRect();
+    const coords = {
+      x: (rectPointer.x + 10 - rectField.x) / scaleValue,
+      y: (rectPointer.y + 10 - rectField.y) / scaleValue
+    }
+    if (arrayPoints.length !== 0) {
+      for (let point of arrayPoints) {
+        if (Math.abs(point.x - coords.x) < 10 || Math.abs(point.y - coords.y) < 10) {
+          return;
+        }
+      }
+    }
+    content.insertAdjacentHTML('beforeend', `<circle cx="${coords.x}" cy="${coords.y}" r="10" fill="#868686" />`);
+    arrayPoints.push({
+      x: coords.x,
+      y: coords.y
+    })
+  }
+  function movePointer(event) {
+    if (added) {
+      const coords = {
+        x: event.clientX,
+        y: event.clientY
+      }
 
-    const test = dataRect.x * -1 + (dataRect.x + dataRect.right / 2);
-    console.log(dataRect, test);
+      pointer.style.left = coords.x - 10 + 'px';
+      pointer.style.top = coords.y - 10 + 'px';
+    }
+  }
+  function addPoint () {
+    added = document.getElementById('add').checked;
+    if (added) {
+      pointer.style.visibility = "visible";
+    } else {
+      pointer.style.visibility = "hidden";
+    }
   }
   function setScale (value = 1, editor = 0) {
     scaleValue = value + editor
