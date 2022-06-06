@@ -14,6 +14,70 @@
     --main-grid-scale: 1;
   }
 
+  @keyframes errorAddCircle {
+    from {
+      fill: #868686;
+    }
+    50% {
+      fill: #ff3b6b;
+    }
+    to {
+      fill: #868686;
+    }
+  }
+  @keyframes errorAddDiv {
+    from {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  .error-add {
+    animation-name: errorAddDiv;
+    animation-duration: 0.3s;
+  }
+  .error-add>svg>circle {
+    animation-name: errorAddCircle;
+    animation-duration: 0.3s;
+  }
+
+  @keyframes successAddCircle {
+    from {
+      fill: #868686;
+    }
+    50% {
+      fill: #2ab99d;
+    }
+    to {
+      fill: #868686;
+    }
+  }
+  @keyframes successAddDiv {
+    from {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  .success-add {
+    animation-name: successAddDiv;
+    animation-duration: 0.3s;
+  }
+  .success-add>svg>circle {
+    animation-name: successAddCircle;
+    animation-duration: 0.3s;
+  }
+
   body, html {
     height: 100%;
     margin: 0;
@@ -160,12 +224,11 @@
   <div id="point-add" onclick="addPointInField()">
     <svg width="20" height="20"
          xmlns="http://www.w3.org/2000/svg">
-      <circle cx="10" cy="10" r="10" fill="#868686" />
+      <circle cx="10" cy="10" r="10" fill="#868686" id="pointer-adder" />
     </svg>
   </div>
   <div draggable="true" id="gridField">
-    <svg xmlns="http://www.w3.org/2000/svg" id="content">
-    </svg>
+    <svg xmlns="http://www.w3.org/2000/svg" id="content" />
   </div>
   <div class="block-btn points">
     <div class="add-check">
@@ -201,6 +264,7 @@
   const maxSize = 3040;
   const minSize = 500;
   let added = false;
+  let drag = true;
   let arrayPoints = []
   let currentId = 0;
 
@@ -213,30 +277,35 @@
   let tasksListElement = document.getElementById('gridField');
   let pointer = document.getElementById('point-add');
   tasksListElement.onmousedown = function (event) {
-    const pos_div = tasksListElement.getBoundingClientRect();
-    const first_pos = {
-      x: event.clientX,
-      y: event.clientY
-    };
-    function onMouseMove (event_move) {
-      const deviation_value = {
-        width: event_move.clientX - first_pos.x,
-        height: event_move.clientY - first_pos.y
+    if (drag) {
+      for (let point of document.querySelectorAll('.point')) {
+        point.style.fill = "#868686";
+      }
+      const pos_div = tasksListElement.getBoundingClientRect();
+      const first_pos = {
+        x: event.clientX,
+        y: event.clientY
       };
-      tasksListElement.style.left = pos_div.x + deviation_value.width + 'px';
-      tasksListElement.style.top = pos_div.y + deviation_value.height + 'px';
+      function onMouseMove (event_move) {
+        const deviation_value = {
+          width: event_move.clientX - first_pos.x,
+          height: event_move.clientY - first_pos.y
+        };
+        tasksListElement.style.left = pos_div.x + deviation_value.width + 'px';
+        tasksListElement.style.top = pos_div.y + deviation_value.height + 'px';
 
-      fixedPosition();
+        fixedPosition();
+      }
+      document.addEventListener('mousemove', onMouseMove);
+      tasksListElement.onmouseout = function() {
+        document.removeEventListener('mousemove', onMouseMove);
+        tasksListElement.onmouseup = null;
+      };
+      tasksListElement.onmouseup = function() {
+        document.removeEventListener('mousemove', onMouseMove);
+        tasksListElement.onmouseup = null;
+      };
     }
-    document.addEventListener('mousemove', onMouseMove);
-    tasksListElement.onmouseout = function() {
-      document.removeEventListener('mousemove', onMouseMove);
-      tasksListElement.onmouseup = null;
-    };
-    tasksListElement.onmouseup = function() {
-      document.removeEventListener('mousemove', onMouseMove);
-      tasksListElement.onmouseup = null;
-    };
   }
   tasksListElement.ondragstart = function () {
     return false;
@@ -257,18 +326,29 @@
     }
     if (arrayPoints.length !== 0) {
       for (let point of arrayPoints) {
-        if (Math.abs(point.x - coords.x) < 10 || Math.abs(point.y - coords.y) < 10) {
+        if (Math.abs(point.x - coords.x) < 30 && Math.abs(point.y - coords.y) < 30) {
+          pointer.classList.add('error-add');
+          setTimeout(() => {
+            pointer.classList.remove('error-add');
+          }, 300);
           return;
         }
       }
     }
-    content.insertAdjacentHTML('beforeend', `<circle cx="${coords.x}" cy="${coords.y}" r="10" fill="#868686" class="point" id="point-${currentId}" onclick="selectPoint(${currentId})"/>"`);
+    pointer.classList.add('success-add');
+    setTimeout(() => {
+      pointer.classList.remove('success-add');
+    }, 300);
+    content.insertAdjacentHTML('beforeend', `<circle cx="${coords.x}" cy="${coords.y}" r="10" fill="#868686" class="point" id="point-${currentId}" onclick="selectPoint(${currentId})" onmouseover="blockDrag(true)" onmouseout="blockDrag(false)"/>"`);
     arrayPoints.push({
       id: currentId,
       x: coords.x,
       y: coords.y
     });
     currentId += 1;
+  }
+  function blockDrag(mode) {
+    drag = !mode;
   }
   function selectPoint (id) {
     for (let point of document.querySelectorAll('.point')) {
