@@ -124,6 +124,10 @@
     color: #fff;
   }
 
+  .point {
+    transition: 0.3s;
+  }
+
   #point-add {
     position: absolute;
     z-index: 1000;
@@ -160,7 +164,8 @@
     </svg>
   </div>
   <div draggable="true" id="gridField">
-    <svg xmlns="http://www.w3.org/2000/svg" id="content" />
+    <svg xmlns="http://www.w3.org/2000/svg" id="content">
+    </svg>
   </div>
   <div class="block-btn points">
     <div class="add-check">
@@ -197,6 +202,7 @@
   const minSize = 500;
   let added = false;
   let arrayPoints = []
+  let currentId = 0;
 
   centred();
 
@@ -256,11 +262,20 @@
         }
       }
     }
-    content.insertAdjacentHTML('beforeend', `<circle cx="${coords.x}" cy="${coords.y}" r="10" fill="#868686" />`);
+    content.insertAdjacentHTML('beforeend', `<circle cx="${coords.x}" cy="${coords.y}" r="10" fill="#868686" class="point" id="point-${currentId}" onclick="selectPoint(${currentId})"/>"`);
     arrayPoints.push({
+      id: currentId,
       x: coords.x,
       y: coords.y
-    })
+    });
+    currentId += 1;
+  }
+  function selectPoint (id) {
+    for (let point of document.querySelectorAll('.point')) {
+      point.style.fill = "#868686";
+    }
+    let point = document.getElementById(`point-${id}`);
+    point.style.fill = "#ff3b6b";
   }
   function movePointer(event) {
     if (added) {
