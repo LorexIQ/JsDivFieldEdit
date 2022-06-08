@@ -98,7 +98,7 @@
     flex-direction: column;
   }
 
-  .points {
+  #points {
     position: absolute;
     left: 10px;
     top: 10px;
@@ -125,6 +125,7 @@
     opacity: 0;
   }
   .custom-checkbox+label {
+    cursor: pointer;
     display: inline-flex;
     align-items: center;
     user-select: none;
@@ -160,6 +161,10 @@
 
   #del+label::before {
     content: '\f00d';
+  }
+
+  .fieldPoint {
+    transition: .3s;
   }
   
   .btn {
@@ -229,19 +234,16 @@
 
 <body>
 <div id="field">
-  <div id="point-add" class="point" onclick="addPointInField()">
+  <div id="point-add" style="left: 20px; top: 20px;" class="point" onclick="addPointInField()">
     <svg width="20" height="20"
          xmlns="http://www.w3.org/2000/svg">
       <circle cx="10" cy="10" r="10" fill="#868686" id="pointer-adder" />
     </svg>
   </div>
-  <div id="point-del" style="color: #868686;" class="point" onclick="delPointFromField()">
-    <p class="fa fa-times"></p>
-  </div>
   <div draggable="true" id="gridField">
     <svg xmlns="http://www.w3.org/2000/svg" id="content" />
   </div>
-  <div class="block-btn points">
+  <div id="points" class="block-btn">
     <div class="add-check">
       <input type="checkbox" id="add" class="custom-checkbox" onchange="addPoint()">
       <label for="add"></label>
@@ -287,9 +289,12 @@
   content.style.width = maxSize + 'px';
   content.style.height = maxSize + 'px';
 
+  for (let check of document.querySelectorAll('.custom-checkbox')) {
+    check.checked = false;
+  }
+
   let tasksListElement = document.getElementById('gridField');
   let pointer = document.getElementById('point-add');
-  let deleter = document.getElementById('point-del');
   tasksListElement.onmousedown = function (event) {
     if (drag) {
       unActiveAllPoints();
@@ -325,15 +330,15 @@
   tasksListElement.onmousemove = function (event) {
     if (added) {
       movePointer(event);
-    } else if (deleted) {
-      moveDeleter(event);
     }
   }
   pointer.onmousemove = function (event) {
     movePointer(event)
   }
-  deleter.onmousemove = function (event) {
-    moveDeleter(event)
+  document.getElementById('points').onmousemove = function (event) {
+    if (added) {
+      movePointer(event);
+    }
   }
 
   function addPointInField () {
@@ -358,7 +363,7 @@
     setTimeout(() => {
       pointer.classList.remove('success-add');
     }, 300);
-    content.insertAdjacentHTML('beforeend', `<circle cx="${coords.x}" cy="${coords.y}" r="10" fill="#868686" class="fieldPoint" style="transition: 0.3s" id="point-${currentId}" onclick="selectPoint(${currentId})" onmouseover="blockDrag(true)" onmouseout="blockDrag(false)"/>"`);
+    content.insertAdjacentHTML('beforeend', `<circle cx="${coords.x}" cy="${coords.y}" r="10" fill="#868686" class="fieldPoint" style="transition: 0.3s" id="point-${currentId}" onclick="selectPoint(${currentId}); delPointFromField(${currentId})" onmouseover="blockDrag(true)" onmouseout="blockDrag(false)"/>"`);
     arrayPoints.push({
       id: currentId,
       x: coords.x,
@@ -366,8 +371,20 @@
     });
     currentId += 1;
   }
-  function delPointFromField () {
-
+  function delPointFromField (id) {
+    if (deleted) {
+      let point = document.getElementById(`point-${id}`);
+      setTimeout(() => {
+        point.remove();
+      }, 300);
+      const pointPosition = {
+        x: point.cx.animVal.value,
+        y: point.cy.animVal.value
+      }
+      point.style.r = '0';
+      const objArray = arrayPoints.filter(res => res.x === pointPosition.x && res.y === pointPosition.y)[0];
+      arrayPoints.splice(arrayPoints.indexOf(objArray), 1);
+    }
   }
   function unActiveAllPoints () {
     for (let point of document.querySelectorAll('.fieldPoint')) {
@@ -378,9 +395,11 @@
     drag = !mode;
   }
   function selectPoint (id) {
-    unActiveAllPoints();
-    let point = document.getElementById(`point-${id}`);
-    point.style.fill = "#ff3b6b";
+    if (!deleted) {
+      unActiveAllPoints();
+      let point = document.getElementById(`point-${id}`);
+      point.style.fill = "#ff3b6b";
+    }
   }
   function movePointer (event) {
     if (added) {
@@ -391,17 +410,6 @@
 
       pointer.style.left = coords.x - 10 + 'px';
       pointer.style.top = coords.y - 10 + 'px';
-    }
-  }
-  function moveDeleter (event) {
-    if (deleted) {
-      const coords = {
-        x: event.clientX,
-        y: event.clientY
-      }
-
-      deleter.style.left = coords.x - 10 + 'px';
-      deleter.style.top = coords.y - 10 + 'px';
     }
   }
   function addPoint () {
@@ -424,11 +432,6 @@
     }
     unActiveAllPoints();
     deleted = document.getElementById('del').checked;
-    if (deleted) {
-      deleter.style.visibility = "visible";
-    } else {
-      deleter.style.visibility = "hidden";
-    }
   }
   function setScale (value = 1, editor = 0) {
     scaleValue = value + editor
