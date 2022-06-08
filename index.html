@@ -241,7 +241,9 @@
     </svg>
   </div>
   <div draggable="true" id="gridField">
-    <svg xmlns="http://www.w3.org/2000/svg" id="content" />
+    <svg xmlns="http://www.w3.org/2000/svg" id="content">
+
+    </svg>
   </div>
   <div id="points" class="block-btn">
     <div class="add-check">
@@ -270,6 +272,9 @@
     </button>
   </div>
 </div>
+<div class="navigate">
+  <a href="#" class="custom-btn" onclick="traceButton()">Трасировка</a>
+</div>
 </body>
 
 <script>
@@ -283,15 +288,62 @@
   let arrayPoints = []
   let currentId = 0;
 
+  class Line {
+    constructor(point_a, point_b) {
+      this.point_a = point_a;
+      this.point_b = point_b;
+      this._len = ((point_a.x - point_b.x) ** 2 + (point_a.y - point_b.y) ** 2) ** 0.5;
+    }
+    get len() {
+      return this._len;
+    }
+  }
+
+  class MinTree {
+    constructor(points) {
+      this.points = points;
+      this.lines = [];
+    }
+    sliceLines() {
+      for (let i = 0; i < this.lines.length; i++) {
+        for (let j = 0; j < this.lines.length; j++) {
+          if (intercept(this.lines[i], this.lines[j])) {
+            this.lines.splice(j, 1);
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+    trace() {
+      for (let i = 0; i < this.points.length - 1; i++) {
+        for (let j = i + 1; j < this.points.length; j++) {
+          this.lines.push(new Line(this.points[i], this.points[j]));
+        }
+      }
+      while (this.sliceLines()) {
+        this.lines.sort(() => Math.random() - 0.5);
+      }
+      // for (let i = 0; i < this.lines.length; i++) {
+      //   for (let j = 0; j < this.lines.length; j++) {
+      //     if (intercept(this.lines[i], this.lines[j])) {
+      //       this.lines.splice(j, 1);
+      //       j--;
+      //     }
+      //   }
+      // }
+      for (let line of this.lines) {
+        content.insertAdjacentHTML('afterbegin', `<path class="line" d='M${line.point_a.x} ${line.point_a.y} L${line.point_b.x} ${line.point_b.y} Z' stroke='#868686' stroke-width='3'/>`);
+      }
+    }
+  }
+
   centred();
+  clearTools();
 
   let content = document.getElementById('content');
   content.style.width = maxSize + 'px';
   content.style.height = maxSize + 'px';
-
-  for (let check of document.querySelectorAll('.custom-checkbox')) {
-    check.checked = false;
-  }
 
   let tasksListElement = document.getElementById('gridField');
   let pointer = document.getElementById('point-add');
@@ -339,6 +391,13 @@
     if (added) {
       movePointer(event);
     }
+  }
+
+  function traceButton () {
+    clearTools();
+    clearLines();
+    let test = new MinTree(arrayPoints);
+    test.trace();
   }
 
   function addPointInField () {
@@ -412,11 +471,28 @@
       pointer.style.top = coords.y - 10 + 'px';
     }
   }
+  function clearTools () {
+    if (added) {
+      pointer.style.visibility = "hidden";
+      added = false;
+    }
+
+    deleted = false;
+    for (let check of document.querySelectorAll('.custom-checkbox')) {
+      check.checked = false;
+    }
+  }
+  function clearLines () {
+    for (let line of document.querySelectorAll('.line')) {
+      line.remove();
+    }
+  }
   function addPoint () {
     if (deleted) {
       document.getElementById('del').checked = false;
       delPoint();
     }
+    clearLines();
     unActiveAllPoints();
     added = document.getElementById('add').checked;
     if (added) {
@@ -430,8 +506,57 @@
       document.getElementById('add').checked = false;
       addPoint();
     }
+    clearLines();
     unActiveAllPoints();
     deleted = document.getElementById('del').checked;
+  }
+  function intercept(line_1, line_2) {
+    const x1 = line_1.point_a.x;
+    const y1 = line_1.point_a.y;
+    const x2 = line_1.point_b.x;
+    const y2 = line_1.point_b.y;
+    const x3 = line_2.point_a.x;
+    const y3 = line_2.point_a.y;
+    const x4 = line_2.point_b.x;
+    const y4 = line_2.point_b.y;
+    if (JSON.stringify(line_1.point_a) === JSON.stringify(line_2.point_a) ||
+            JSON.stringify(line_1.point_a) === JSON.stringify(line_2.point_b) ||
+            JSON.stringify(line_1.point_b) === JSON.stringify(line_2.point_a) ||
+            JSON.stringify(line_1.point_b) === JSON.stringify(line_2.point_b)) {
+      return false;
+    }
+    let Ua, Ub, num_a, num_b, den;
+    den = (y4 - y3) * (x1 - x2) - (x4 - x3) * (y1 - y2);
+    if (den === 0) {
+      return (x1 * y2 - x2 * y1) * (x4 - x3) - (x3 * y4 - x4 * y3) * (x2 - x1) === 0 &&
+              (x1 * y2 - x2 * y1) * (y4 - y3) - (x3 * y4 - x4 * y3) * (y2 - y1) === 0;
+    }
+    else {
+      num_a = (x4 - x2) * (y4 - y3) - (x4 - x3) * (y4 - y2);
+      num_b = (x1 - x2) * (y4 - y2) - (x4 - x2) * (y1 - y2);
+      Ua = num_a / den;
+      Ub = num_b / den;
+      return Ua > 0 && Ua < 1 && Ub > 0 && Ub < 1;
+    }
+  }
+  function lineSegmentsIntersect (line_1, line_2) {
+    const x1 = line_1.point_a.x;
+    const y1 = line_1.point_a.y;
+    const x2 = line_1.point_b.x;
+    const y2 = line_1.point_b.y;
+    const x3 = line_2.point_a.x;
+    const y3 = line_2.point_a.y;
+    const x4 = line_2.point_b.x;
+    const y4 = line_2.point_b.y;
+    let det, gamma, lambda;
+    det = (x2 - x1) * (y4 - y3) - (x4 - x3) * (y2 - y1);
+    if (det === 0) {
+      return false;
+    } else {
+      lambda = ((y4 - y3) * (x4 - x1) + (x3 - x4) * (y4 - y1)) / det;
+      gamma = ((y1 - y2) * (x4 - x1) + (x2 - x1) * (y4 - y1)) / det;
+      return (0 < lambda && lambda < 1) && (0 < gamma && gamma < 1);
+    }
   }
   function setScale (value = 1, editor = 0) {
     scaleValue = value + editor
