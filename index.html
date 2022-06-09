@@ -5,6 +5,7 @@
   <title>Title</title>
 
   <link rel="stylesheet" href="fonts/fontAwesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="fonts/Ponter%20Bold.ttf">
 </head>
 
 <style lang="scss">
@@ -79,15 +80,88 @@
   }
 
   body, html {
-    height: 100%;
     margin: 0;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-    background-color: #ffffff;
+    background-color: #bbbbbb;
+  }
+
+  #app {
+    width: 850px;
+    height: 504px;
+    padding: 25px 25px;
+    display: flex;
+    gap: 25px;
+    justify-content: space-between;
+    box-shadow: 0 0 10px #fff;
+
+    background-color: #fff;
+  }
+
+  .top-buttons {
+    display: flex;
+    gap: 20px;
+  }
+
+  .custom-btn {
+    text-decoration: none;
+    user-select: none;
+  }
+  .custom-btn p:before {
+    font-family: 'FontAwesome', serif;
+  }
+  .custom-btn p {
+    font-family: 'Ponter', serif;
+    font-weight: 700;
+    font-size: 24px;
+
+    color: #fff;
+    background-color: #bbb;
+
+    padding: 0 10px;
+    width: 115px;
+    height: 40px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px 1px #bbb;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .bottom-buttons>.custom-btn>p {
+    width: 180px;
+  }
+  .navigate * {
+    margin: 0;
+  }
+  .navigate>div {
+    display: flex;
+    flex-direction: column;
+    gap: 60px;
+  }
+  .navigate {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 10px 10px;
+  }
+  .navigate h1 {
+    font-family: 'Ponter', serif;
+    font-size: 30px;
+    text-align: center;
   }
 
   #field {
     width: 500px;
     height: 500px;
+
+    border: 2px solid #c6c6c6;
+    border-radius: 10px;
 
     overflow: hidden;
     position: relative;
@@ -221,8 +295,8 @@
     width: var(--main-grid-max-size);
     height: var(--main-grid-max-size);
 
-    background: 0 calc(var(--main-grid-max-size) / 2) url("data:image/svg+xml,%3Csvg width='40' height='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 40,0 L 0,0' fill='transparent' stroke='%23989898'/%3E%3C/svg%3E") repeat-x,
-    calc(var(--main-grid-max-size) / 2) 0 url("data:image/svg+xml,%3Csvg width='2' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 0,40 L 0,0' fill='transparent' stroke='%23989898'/%3E%3C/svg%3E") repeat-y,
+    background: 0 calc(var(--main-grid-max-size) / 2) url("data:image/svg+xml,%3Csvg width='40' height='3' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 40,0 L 0,0' fill='transparent' stroke='%23989898'/%3E%3C/svg%3E") repeat-x,
+    calc(var(--main-grid-max-size) / 2) 0 url("data:image/svg+xml,%3Csvg width='3' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 0,40 L 0,0' fill='transparent' stroke='%23989898'/%3E%3C/svg%3E") repeat-y,
     url("data:image/svg+xml,%3Csvg version='1.1' baseProfile='full' width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 0,40 L 0,0 40,0' fill='transparent' stroke='%23e3e4e6'/%3E%3C/svg%3E"),
     #f8faff;
 
@@ -233,47 +307,58 @@
 </style>
 
 <body>
-<div id="field">
-  <div id="point-add" style="left: 20px; top: 20px;" class="point" onclick="addPointInField()">
-    <svg width="20" height="20"
-         xmlns="http://www.w3.org/2000/svg">
-      <circle cx="10" cy="10" r="10" fill="#868686" id="pointer-adder" />
-    </svg>
-  </div>
-  <div draggable="true" id="gridField">
-    <svg xmlns="http://www.w3.org/2000/svg" id="content">
+<div id="app">
+  <div id="field">
+    <div id="point-add" style="left: 20px; top: 20px;" class="point" onclick="addPointInField()">
+      <svg width="20" height="20"
+           xmlns="http://www.w3.org/2000/svg">
+        <circle cx="10" cy="10" r="10" fill="#868686" id="pointer-adder" />
+      </svg>
+    </div>
+    <div draggable="true" id="gridField">
+      <svg xmlns="http://www.w3.org/2000/svg" id="content">
 
-    </svg>
-  </div>
-  <div id="points" class="block-btn">
-    <div class="add-check">
-      <input type="checkbox" id="add" class="custom-checkbox" onchange="addPoint()">
-      <label for="add"></label>
+      </svg>
     </div>
-    <div class="add-check">
-      <input type="checkbox" id="del" class="custom-checkbox" onchange="delPoint()">
-      <label for="del"></label>
+    <div id="points" class="block-btn">
+      <div class="add-check">
+        <input type="checkbox" id="add" class="custom-checkbox" onchange="addPoint()">
+        <label for="add"></label>
+      </div>
+      <div class="add-check">
+        <input type="checkbox" id="del" class="custom-checkbox" onchange="delPoint()">
+        <label for="del"></label>
+      </div>
+    </div>
+    <div class="block-btn zoom">
+      <button onclick="zoomUp()" class="btn">
+        <p class="fa fa-plus"></p>
+      </button>
+      <button onclick="reloadZoom()" class="btn">
+        <p>1:1</p>
+      </button>
+      <button onclick="zoomDown()" class="btn">
+        <p class="fa fa-minus"></p>
+      </button>
+    </div>
+    <div class="block-btn center">
+      <button onclick="centred()" class="btn">
+        <p class="fa fa-crosshairs"></p>
+      </button>
     </div>
   </div>
-  <div class="block-btn zoom">
-    <button onclick="zoomUp()" class="btn">
-      <p class="fa fa-plus"></p>
-    </button>
-    <button onclick="reloadZoom()" class="btn">
-      <p>1:1</p>
-    </button>
-    <button onclick="zoomDown()" class="btn">
-      <p class="fa fa-minus"></p>
-    </button>
+  <div class="navigate">
+    <div>
+      <h1>Minimal Spanning Trees</h1>
+      <div class="top-buttons buttons">
+        <a href="#" draggable="false" class="custom-btn"><p class="fa fa-info-circle">ПОМОЩЬ</p></a>
+        <a href="#" draggable="false" class="custom-btn"><p class="fa fa-map-marker">ТОЧКИ</p></a>
+      </div>
+    </div>
+    <div class="bottom-buttons buttons">
+      <a href="#" draggable="false" class="custom-btn" onclick="traceButton()"><p class="fa fa-bolt">ПРОСЧИТАТЬ</p></a>
+    </div>
   </div>
-  <div class="block-btn center">
-    <button onclick="centred()" class="btn">
-      <p class="fa fa-crosshairs"></p>
-    </button>
-  </div>
-</div>
-<div class="navigate">
-  <a href="#" class="custom-btn" onclick="traceButton()">Трасировка</a>
 </div>
 </body>
 
@@ -304,34 +389,21 @@
       this.points = points;
       this.lines = [];
     }
-    sliceLines() {
-      for (let i = 0; i < this.lines.length; i++) {
-        for (let j = 0; j < this.lines.length; j++) {
-          if (intercept(this.lines[i], this.lines[j])) {
-            this.lines.splice(j, 1);
-            return true;
-          }
-        }
-      }
-      return false;
-    }
     trace() {
       for (let i = 0; i < this.points.length - 1; i++) {
         for (let j = i + 1; j < this.points.length; j++) {
           this.lines.push(new Line(this.points[i], this.points[j]));
         }
       }
-      while (this.sliceLines()) {
-        this.lines.sort(() => Math.random() - 0.5);
+      for (let i = 0; i < 5; i++) this.lines.sort(() => Math.random() - 0.5);
+      for (let i = 0; i < this.lines.length; i++) {
+        for (let j = 0; j < this.lines.length; j++) {
+          if (intercept(this.lines[i], this.lines[j])) {
+            this.lines.splice(j, 1);
+            j--;
+          }
+        }
       }
-      // for (let i = 0; i < this.lines.length; i++) {
-      //   for (let j = 0; j < this.lines.length; j++) {
-      //     if (intercept(this.lines[i], this.lines[j])) {
-      //       this.lines.splice(j, 1);
-      //       j--;
-      //     }
-      //   }
-      // }
       for (let line of this.lines) {
         content.insertAdjacentHTML('afterbegin', `<path class="line" d='M${line.point_a.x} ${line.point_a.y} L${line.point_b.x} ${line.point_b.y} Z' stroke='#868686' stroke-width='3'/>`);
       }
@@ -345,11 +417,13 @@
   content.style.width = maxSize + 'px';
   content.style.height = maxSize + 'px';
 
+  let client = document.getElementById('app');
   let tasksListElement = document.getElementById('gridField');
   let pointer = document.getElementById('point-add');
   tasksListElement.onmousedown = function (event) {
     if (drag) {
       unActiveAllPoints();
+      const client_rect = client.getBoundingClientRect();
       const pos_div = tasksListElement.getBoundingClientRect();
       const first_pos = {
         x: event.clientX,
@@ -357,8 +431,8 @@
       };
       function onMouseMove (event_move) {
         const deviation_value = {
-          width: event_move.clientX - first_pos.x,
-          height: event_move.clientY - first_pos.y
+          width: event_move.clientX - first_pos.x - client_rect.x - 27,
+          height: event_move.clientY - first_pos.y - client_rect.y - 27
         };
         tasksListElement.style.left = pos_div.x + deviation_value.width + 'px';
         tasksListElement.style.top = pos_div.y + deviation_value.height + 'px';
@@ -433,9 +507,9 @@
   function delPointFromField (id) {
     if (deleted) {
       let point = document.getElementById(`point-${id}`);
-      setTimeout(() => {
-        point.remove();
-      }, 300);
+      setTimeout((pnt) => {
+        pnt.remove();
+      }, 300, point);
       const pointPosition = {
         x: point.cx.animVal.value,
         y: point.cy.animVal.value
@@ -462,9 +536,10 @@
   }
   function movePointer (event) {
     if (added) {
+      const client_rect = client.getBoundingClientRect();
       const coords = {
-        x: event.clientX,
-        y: event.clientY
+        x: event.clientX - client_rect.x - 27,
+        y: event.clientY - client_rect.y - 27
       }
 
       pointer.style.left = coords.x - 10 + 'px';
@@ -539,25 +614,6 @@
       return Ua > 0 && Ua < 1 && Ub > 0 && Ub < 1;
     }
   }
-  function lineSegmentsIntersect (line_1, line_2) {
-    const x1 = line_1.point_a.x;
-    const y1 = line_1.point_a.y;
-    const x2 = line_1.point_b.x;
-    const y2 = line_1.point_b.y;
-    const x3 = line_2.point_a.x;
-    const y3 = line_2.point_a.y;
-    const x4 = line_2.point_b.x;
-    const y4 = line_2.point_b.y;
-    let det, gamma, lambda;
-    det = (x2 - x1) * (y4 - y3) - (x4 - x3) * (y2 - y1);
-    if (det === 0) {
-      return false;
-    } else {
-      lambda = ((y4 - y3) * (x4 - x1) + (x3 - x4) * (y4 - y1)) / det;
-      gamma = ((y1 - y2) * (x4 - x1) + (x2 - x1) * (y4 - y1)) / det;
-      return (0 < lambda && lambda < 1) && (0 < gamma && gamma < 1);
-    }
-  }
   function setScale (value = 1, editor = 0) {
     scaleValue = value + editor
     document.documentElement.style.setProperty('--main-grid-scale', '' + scaleValue);
@@ -577,9 +633,10 @@
 
     setScale(scaleValue, 0.1);
 
+    const client_rect = client.getBoundingClientRect();
     const newRect = tasksListElement.getBoundingClientRect();
-    tasksListElement.style.left = newRect.x - (newRect.width - oldRect.width) / 2 + 'px';
-    tasksListElement.style.top = newRect.y - (newRect.width - oldRect.width) / 2 + 'px';
+    tasksListElement.style.left = newRect.x - (newRect.width - oldRect.width) / 2 - client_rect.x - 27 + 'px';
+    tasksListElement.style.top = newRect.y - (newRect.width - oldRect.width) / 2 -client_rect.y - 27 + 'px';
   }
   function zoomDown () {
     updateScale ();
@@ -589,9 +646,10 @@
 
     setScale(scaleValue, -0.1);
 
+    const client_rect = client.getBoundingClientRect();
     const newRect = tasksListElement.getBoundingClientRect();
-    tasksListElement.style.left = newRect.x - (newRect.width - oldRect.width) / 2 + 'px';
-    tasksListElement.style.top = newRect.y - (newRect.width - oldRect.width) / 2 + 'px';
+    tasksListElement.style.left = newRect.x - (newRect.width - oldRect.width) / 2 - client_rect.x - 27 + 'px';
+    tasksListElement.style.top = newRect.y - (newRect.width - oldRect.width) / 2 - client_rect.y - 27 + 'px';
 
     fixedPosition();
   }
@@ -602,17 +660,17 @@
     grid_elem.style.top = -(maxSize * scaleValue - minSize) / 2 + 'px';
   }
   function fixedPosition () {
-    let grid_elem = document.getElementById('gridField');
-    let pos_div = grid_elem.getBoundingClientRect();
+    const pos_div = tasksListElement.getBoundingClientRect();
+    const client_rect = client.getBoundingClientRect();
 
-    if (pos_div.right < minSize)
-      grid_elem.style.left = pos_div.x + (minSize - pos_div.right) + 'px';
-    if (pos_div.bottom < minSize)
-      grid_elem.style.top = pos_div.y + (minSize - pos_div.bottom) + 'px';
-    if (pos_div.x > 0)
-      grid_elem.style.left = '0px';
-    if (pos_div.y > 0)
-      grid_elem.style.top = '0px';
+    if (pos_div.right - client_rect.x - 27 < minSize)
+      tasksListElement.style.left = pos_div.x + (minSize - pos_div.right) + 'px';
+    if (pos_div.bottom - client_rect.y - 27 < minSize)
+      tasksListElement.style.top = pos_div.y + (minSize - pos_div.bottom) + 'px';
+    if (pos_div.x - client_rect.x - 27 > 0)
+      tasksListElement.style.left = '0px';
+    if (pos_div.y - client_rect.y - 27 > 0)
+      tasksListElement.style.top = '0px';
   }
 </script>
 </html>
