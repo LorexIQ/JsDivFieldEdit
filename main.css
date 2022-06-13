@@ -174,13 +174,19 @@ body, html {
   top: calc(50% - 70px);
 }
 
+.del-all {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+}
+
 .center {
   position: absolute;
   right: 10px;
   bottom: 10px;
 }
 
-.add-check {
+.upper-float {
   z-index: 1001;
 }
 .custom-checkbox {
@@ -286,7 +292,11 @@ body, html {
 }
 
 .calculate-mode-point {
-  fill: #444444;
+  fill: #444;
+}
+
+.active-point {
+  fill: #ff3b6b;
 }
 
 #gridField {

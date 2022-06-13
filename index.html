@@ -21,21 +21,24 @@
       </svg>
     </div>
     <div draggable="true" id="gridField">
-      <svg xmlns="http://www.w3.org/2000/svg" id="content">
-
-      </svg>
+      <svg xmlns="http://www.w3.org/2000/svg" id="content" />
     </div>
     <div id="points" class="block-btn">
-      <div class="add-check">
+      <div class="upper-float">
         <input type="checkbox" id="add" class="custom-checkbox" onchange="addPoint()">
         <label for="add"></label>
       </div>
-      <div class="add-check">
+      <div class="upper-float">
         <input type="checkbox" id="del" class="custom-checkbox" onchange="delPoint()">
         <label for="del"></label>
       </div>
     </div>
-    <div class="block-btn zoom">
+    <div class="block-btn del-all upper-float">
+      <button onclick="clearAllField()" class="btn">
+        <p class="fa fa-eraser"></p>
+      </button>
+    </div>
+    <div class="block-btn zoom upper-float">
       <button onclick="zoomUp()" class="btn">
         <p class="fa fa-plus"></p>
       </button>
@@ -46,7 +49,7 @@
         <p class="fa fa-minus"></p>
       </button>
     </div>
-    <div class="block-btn center">
+    <div class="block-btn center upper-float">
       <button onclick="centred()" class="btn">
         <p class="fa fa-crosshairs"></p>
       </button>
@@ -55,10 +58,6 @@
   <div class="navigate">
     <div>
       <h1>Minimal Spanning Trees</h1>
-      <div class="top-buttons buttons">
-        <a href="#" draggable="false" class="custom-btn"><p class="fa fa-info-circle">ПОМОЩЬ</p></a>
-        <a href="#" draggable="false" class="custom-btn"><p class="fa fa-map-marker">ТОЧКИ</p></a>
-      </div>
     </div>
     <div class="bottom-buttons buttons">
       <a href="#" draggable="false" class="custom-btn" onclick="traceButton()"><p class="fa fa-bolt">ПРОСЧИТАТЬ</p></a>
@@ -75,7 +74,7 @@
   let added = false;
   let deleted = false;
   let drag = true;
-  let arrayPoints = []
+  let arrayPoints = [];
   let currentId = 0;
 
   class Line {
@@ -251,9 +250,9 @@
   function traceButton () {
     clearTools();
     clearLines();
-    let test = new MinTree(arrayPoints);
-    test.trace();
-    test.calculate();
+    let obj = new MinTree(arrayPoints);
+    obj.trace();
+    obj.calculate();
   }
 
   function addPointInField () {
@@ -278,7 +277,9 @@
     setTimeout(() => {
       pointer.classList.remove('success-add');
     }, 300);
-    content.insertAdjacentHTML('beforeend', `<circle cx="${coords.x}" cy="${coords.y}" r="10" fill="#868686" class="fieldPoint" style="transition: 0.3s" id="point-${currentId}" onclick="selectPoint(${currentId}); delPointFromField(${currentId})" onmouseover="blockDrag(true)" onmouseout="blockDrag(false)"/>"`);
+    let point_circle = document.createElement('circle');
+    point_circle.innerHTML = `<circle cx="${coords.x}" cy="${coords.y}" r="10" fill="#868686" class="fieldPoint" style="transition: 0.3s" id="point-${currentId}" onclick="delPointFromField(${currentId})" onmouseover="blockDrag(true)" onmouseout="blockDrag(false)"/>"`;
+    content.insertAdjacentHTML('beforeend', point_circle.innerHTML);
     arrayPoints.push({
       id: currentId,
       x: coords.x,
@@ -303,18 +304,16 @@
   }
   function unActiveAllPoints () {
     for (let point of document.querySelectorAll('.fieldPoint')) {
-      point.style.fill = "";
+      point.classList.remove('active-point');
     }
+  }
+  function clearAllField () {
+    arrayPoints = [];
+    currentId = 0;
+    content.innerHTML = '';
   }
   function blockDrag (mode) {
     drag = !mode;
-  }
-  function selectPoint (id) {
-    if (!deleted) {
-      unActiveAllPoints();
-      let point = document.getElementById(`point-${id}`);
-      point.style.fill = "#ff3b6b";
-    }
   }
   function movePointer (event) {
     if (added) {
@@ -370,7 +369,7 @@
     unActiveAllPoints();
     deleted = document.getElementById('del').checked;
   }
-  function intercept(line_1, line_2) {
+  function intercept (line_1, line_2) {
     const x1 = line_1.point_a.x;
     const y1 = line_1.point_a.y;
     const x2 = line_1.point_b.x;
