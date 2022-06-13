@@ -7,307 +7,9 @@
   <link rel="stylesheet" href="fonts/fontAwesome/css/font-awesome.min.css">
   <link rel="stylesheet" href="fonts/Ponter%20Bold.ttf">
 
+  <link rel="stylesheet" href="main.css">
   <link rel="icon" type="image/svg" href="img/favicon.svg">
 </head>
-
-<style lang="scss">
-  :root {
-    --main-grid-max-size: 3040px;
-    --main-grid-min-size: 500px;
-    --main-grid-scale: 1;
-  }
-
-  @keyframes errorAddCircle {
-    from {
-      fill: #868686;
-    }
-    50% {
-      fill: #ff3b6b;
-    }
-    to {
-      fill: #868686;
-    }
-  }
-  @keyframes errorAddDiv {
-    from {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.1);
-    }
-    to {
-      transform: scale(1);
-    }
-  }
-
-  .error-add {
-    animation-name: errorAddDiv;
-    animation-duration: 0.3s;
-  }
-  .error-add>svg>circle {
-    animation-name: errorAddCircle;
-    animation-duration: 0.3s;
-  }
-
-  @keyframes successAddCircle {
-    from {
-      fill: #868686;
-    }
-    50% {
-      fill: #2ab99d;
-    }
-    to {
-      fill: #868686;
-    }
-  }
-  @keyframes successAddDiv {
-    from {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.1);
-    }
-    to {
-      transform: scale(1);
-    }
-  }
-
-  .success-add {
-    animation-name: successAddDiv;
-    animation-duration: 0.3s;
-  }
-  .success-add>svg>circle {
-    animation-name: successAddCircle;
-    animation-duration: 0.3s;
-  }
-
-  body, html {
-    margin: 0;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    background-color: #000000;
-  }
-
-  #app {
-    width: 850px;
-    height: 504px;
-    padding: 25px 25px;
-    display: flex;
-    gap: 25px;
-    justify-content: space-between;
-    box-shadow: 0 0 10px #bbb;
-    border-radius: 10px;
-
-    background-color: #fff;
-  }
-
-  .top-buttons {
-    display: flex;
-    gap: 20px;
-  }
-
-  .custom-btn {
-    text-decoration: none;
-    user-select: none;
-  }
-  .custom-btn p:before {
-    font-family: 'FontAwesome', serif;
-  }
-  .custom-btn p {
-    font-family: 'Ponter', serif;
-    font-weight: 700;
-    font-size: 24px;
-
-    color: #fff;
-    background-color: #bbb;
-
-    padding: 0 10px;
-    width: 115px;
-    height: 40px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px 1px #bbb;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .bottom-buttons>.custom-btn>p {
-    width: 180px;
-  }
-  .navigate * {
-    margin: 0;
-  }
-  .navigate>div {
-    display: flex;
-    flex-direction: column;
-    gap: 60px;
-  }
-  .navigate {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-
-    padding: 10px 10px;
-  }
-  .navigate h1 {
-    font-family: 'Ponter', serif;
-    font-size: 30px;
-    text-align: center;
-  }
-
-  #field {
-    width: 500px;
-    height: 500px;
-
-    border: 2px solid #c6c6c6;
-    border-radius: 10px;
-
-    overflow: hidden;
-    position: relative;
-  }
-
-  .block-btn {
-    display: flex;
-    flex-direction: column;
-  }
-
-  #points {
-    position: absolute;
-    left: 10px;
-    top: 10px;
-  }
-
-  .zoom {
-    position: absolute;
-    right: 10px;
-    top: calc(50% - 70px);
-  }
-
-  .center {
-    position: absolute;
-    right: 10px;
-    bottom: 10px;
-  }
-
-  .add-check {
-    z-index: 1001;
-  }
-  .custom-checkbox {
-    position: absolute;
-    z-index: -1;
-    opacity: 0;
-  }
-  .custom-checkbox+label {
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    user-select: none;
-  }
-  .custom-checkbox+label::before {
-    font-family: 'FontAwesome',serif;
-    color: #fff;
-    background-color: #bbb;
-    box-shadow: 0 0 12px 2px #bababa;
-
-    width: 40px;
-    height: 40px;
-    margin-bottom: 10px;
-    flex-shrink: 0;
-    flex-grow: 0;
-    border: 0;
-    border-radius: 10px;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    transition: 0.3s;
-  }
-  .custom-checkbox:checked+label::before {
-    background-color: #868686;
-    transform: scale(0.95);
-  }
-
-  #add+label::before {
-    content: '\f041';
-  }
-
-  #del+label::before {
-    content: '\f00d';
-  }
-
-  .fieldPoint {
-    transition: .3s;
-  }
-  
-  .btn {
-    width: 40px;
-    height: 40px;
-
-    background-color: #bababa;
-    border: 0;
-    border-radius: 10px;
-    margin: 0 0 10px 0;
-
-    transition: 0.3s;
-
-    box-shadow: 0 0 12px 2px #bababa;
-  }
-
-  .btn:last-child {
-    margin: 0;
-  }
-
-  .btn:hover {
-    background-color: #868686;
-  }
-
-  .btn:active {
-    background-color: #666;
-    transform: scale(0.95);
-  }
-
-  .btn>p {
-    margin: 0;
-    font-size: 18px;
-    color: #fff;
-  }
-
-  .point {
-    position: absolute;
-    z-index: 1000;
-    visibility: hidden;
-    cursor: none;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .point>svg {
-    border-radius: 100%;
-    box-shadow: 0 0 10px 2px #bbb;
-  }
-
-  #gridField {
-    width: var(--main-grid-max-size);
-    height: var(--main-grid-max-size);
-
-    background: 0 calc(var(--main-grid-max-size) / 2) url("data:image/svg+xml,%3Csvg width='40' height='3' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 40,0 L 0,0' fill='transparent' stroke='%23989898'/%3E%3C/svg%3E") repeat-x,
-    calc(var(--main-grid-max-size) / 2) 0 url("data:image/svg+xml,%3Csvg width='3' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 0,40 L 0,0' fill='transparent' stroke='%23989898'/%3E%3C/svg%3E") repeat-y,
-    url("data:image/svg+xml,%3Csvg version='1.1' baseProfile='full' width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 0,40 L 0,0 40,0' fill='transparent' stroke='%23e3e4e6'/%3E%3C/svg%3E"),
-    #f8faff;
-
-    position: absolute;
-    transform: scale(var(--main-grid-scale));
-    transform-origin: left top;
-  }
-</style>
 
 <body>
 <div id="app">
@@ -378,12 +80,33 @@
 
   class Line {
     constructor(point_a, point_b) {
+      this._ids = {
+        id_1: point_a.id,
+        id_2: point_b.id
+      };
       this.point_a = point_a;
       this.point_b = point_b;
+      this._id = null;
       this._len = ((point_a.x - point_b.x) ** 2 + (point_a.y - point_b.y) ** 2) ** 0.5;
     }
-    get len() {
+    get id () {
+      return this._id;
+    }
+    set id (line_id) {
+      this._id = line_id;
+    }
+    get ids () {
+      return this._ids;
+    }
+    get len () {
       return this._len;
+    }
+    has (id) {
+      return this.ids.id_1 === id || this.ids.id_2 === id;
+    }
+    inSet (set) {
+      return !!(set.has(this.ids.id_1) && set.has(this.ids.id_2));
+
     }
   }
 
@@ -391,6 +114,23 @@
     constructor(points) {
       this.points = points;
       this.lines = [];
+    }
+    getLinesIdWithIdSet (point_set) {
+      let arrayLines = [];
+      for (let point of point_set) {
+        for (let line of this.lines) {
+          if (line.has(point) && !line.inSet(point_set)) arrayLines.push(line);
+        }
+      }
+      if (arrayLines.length) {
+        return arrayLines;
+      } else {
+        return false;
+      }
+    }
+    getMinimalLenLine (array_lines) {
+      array_lines.sort((a, b) => a.len > b.len ? 1 : a.len < b.len ? -1 : 0)
+      return array_lines[0];
     }
     trace() {
       for (let i = 0; i < this.points.length - 1; i++) {
@@ -407,8 +147,46 @@
           }
         }
       }
+      let all_lines_count = 0;
       for (let line of this.lines) {
-        content.insertAdjacentHTML('afterbegin', `<path class="line" d='M${line.point_a.x} ${line.point_a.y} L${line.point_b.x} ${line.point_b.y} Z' stroke='#868686' stroke-width='3'/>`);
+        line.id = all_lines_count;
+        content.insertAdjacentHTML('afterbegin', `<path class="line" id="line-${all_lines_count}" d='M${line.point_a.x} ${line.point_a.y} L${line.point_b.x} ${line.point_b.y} Z' stroke='#868686' stroke-width='3'/>`);
+        all_lines_count++;
+      }
+    }
+    calculate () {
+      function pushLineIds (line) {
+        selected_peaks.add(line.ids.id_1);
+        selected_peaks.add(line.ids.id_2);
+        unselected_peaks.delete(line.ids.id_1);
+        unselected_peaks.delete(line.ids.id_2);
+      }
+
+      let lines_act;
+      let lines_result = [];
+      let unselected_peaks = new Set();
+      let selected_peaks = new Set();
+
+      selected_peaks.add(this.points[0].id);
+      unselected_peaks.delete(this.points[0].id);
+      this.points.sort(() => Math.random() - 0.5);
+      this.points.forEach((res) => unselected_peaks.add(res.id));
+
+      while (lines_act = this.getLinesIdWithIdSet(selected_peaks)) {
+        let short_line = this.getMinimalLenLine(lines_act);
+        lines_result.push(short_line);
+        pushLineIds(short_line);
+      }
+      for (let line of lines_result) {
+        let first_point_svg = document.querySelector('.fieldPoint');
+        let line_body = document.getElementById(`line-${line.id}`);
+        line_body.style.strokeWidth = '6';
+        line_body.style.stroke = '#444';
+        first_point_svg.insertAdjacentHTML('beforebegin', line_body.outerHTML);
+        line_body.remove();
+      }
+      for (let point of document.querySelectorAll('.fieldPoint')) {
+        point.classList.add('calculate-mode-point');
       }
     }
   }
@@ -475,6 +253,7 @@
     clearLines();
     let test = new MinTree(arrayPoints);
     test.trace();
+    test.calculate();
   }
 
   function addPointInField () {
@@ -524,7 +303,7 @@
   }
   function unActiveAllPoints () {
     for (let point of document.querySelectorAll('.fieldPoint')) {
-      point.style.fill = "#868686";
+      point.style.fill = "";
     }
   }
   function blockDrag (mode) {
@@ -561,6 +340,9 @@
     }
   }
   function clearLines () {
+    for (let point of document.querySelectorAll('.fieldPoint')) {
+      point.classList.remove('calculate-mode-point');
+    }
     for (let line of document.querySelectorAll('.line')) {
       line.remove();
     }
